@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>متجري | My Store</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+  /* =============================================
+     EASY EDIT ZONE — change colors & fonts here
+  ============================================= */
+  :root {
+    --bg:        #f5f0eb;
+    --card:      #ffffff;
+    --accent:    #c8773a;
+    --accent2:   #2d6a4f;
+    --text:      #1a1a1a;
+    --muted:     #7a7060;
+    --border:    #e5ddd3;
+    --radius:    14px;
+    --font-ar:   'Tajawal', sans-serif;
+    --font-en:   'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--font-ar);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    direction: rtl;
+  }
+
+  /* ---- LANGUAGE TOGGLE ---- */
+  .lang-bar {
+    background: var(--text);
+    padding: 6px 24px;
+    display: flex;
+    justify-content: flex-start;
+    gap: 6px;
+  }
+  .lang-btn {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,.3);
+    color: rgba(255,255,255,.7);
+    padding: 3px 12px;
+    border-radius: 20px;
+    font-size: .78rem;
+    cursor: pointer;
+    transition: all .18s;
+    font-family: var(--font-ar);
+  }
+  .lang-btn.active {
+    background: var(--accent);
+    border-color: var(--accent);
+    color: #fff;
+  }
+
+  /* ---- HEADER ---- */
+  header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 2px 12px rgba(0,0,0,.05);
+  }
+  .logo { font-family: var(--font-ar); font-size: 1.7rem; font-weight: 800; color: var(--accent); }
+  .logo span { color: var(--text); }
+  .tagline { font-size: .82rem; color: var(--muted); letter-spacing: .03em; text-align: left; direction: ltr; }
+
+  /* ---- HERO ---- */
+  .hero { text-align: center; padding: 64px 20px 48px; }
+  .hero h1 { font-family: var(--font-ar); font-size: clamp(1.8rem,5vw,3rem); line-height: 1.3; font-weight: 800; margin-bottom: 14px; }
+  .hero p { color: var(--muted); font-size: 1.05rem; max-width: 500px; margin: 0 auto; line-height: 1.8; }
+  .divider { width: 60px; height: 3px; background: var(--accent); margin: 20px auto 0; border-radius: 2px; }
+
+  /* ---- PRODUCTS GRID ---- */
+  .products-section { padding: 0 24px 64px; }
+  .section-title { font-family: var(--font-ar); font-size: 1.5rem; font-weight: 700; margin-bottom: 28px; text-align: center; }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 24px; max-width: 1100px; margin: 0 auto;
+  }
+  .card {
+    background: var(--card); border-radius: var(--radius); border: 1px solid var(--border);
+    overflow: hidden; transition: transform .22s ease, box-shadow .22s ease;
+    display: flex; flex-direction: column; cursor: pointer;
+  }
+  .card:hover { transform: translateY(-4px); box-shadow: 0 16px 40px rgba(0,0,0,.1); }
+  .card-img-wrap {
+    width: 100%; aspect-ratio: 4/3; overflow: hidden; background: #f0ebe3;
+    display: flex; align-items: center; justify-content: center; position: relative;
+  }
+  .card-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: transform .35s ease; }
+  .card:hover .card-img-wrap img { transform: scale(1.05); }
+  .view-hint {
+    position: absolute; bottom: 8px; left: 8px;
+    background: rgba(0,0,0,.45); color: #fff;
+    font-size: .72rem; padding: 4px 10px; border-radius: 20px;
+    opacity: 0; transition: opacity .2s; pointer-events: none;
+    font-family: var(--font-ar);
+  }
+  .card:hover .view-hint { opacity: 1; }
+  .card-body { padding: 18px; flex: 1; display: flex; flex-direction: column; }
+  .card-name { font-family: var(--font-ar); font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
+  .card-name-en { font-family: var(--font-en); font-size: .78rem; color: var(--muted); margin-bottom: 8px; }
+  .card-desc { font-size: .88rem; color: var(--muted); line-height: 1.7; flex: 1; margin-bottom: 14px; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-direction: row-reverse; }
+
+  /* Note: flex-direction row-reverse because RTL — price on right, button on left visually */
+  .price { font-size: 1.2rem; font-weight: 700; color: var(--accent); font-family: var(--font-ar); }
+  .price small { font-size: .72rem; color: var(--muted); font-weight: 400; margin-right: 2px; }
+
+  .btn-wa {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent2); color: #fff; border: none; border-radius: 8px;
+    padding: 9px 14px; font-size: .85rem; font-family: var(--font-ar); font-weight: 500;
+    cursor: pointer; transition: background .18s, transform .15s; white-space: nowrap;
+    direction: rtl;
+  }
+  .btn-wa:hover { background: #1e5c3f; transform: scale(1.03); }
+  .btn-wa svg { width: 16px; height: 16px; fill: #fff; flex-shrink: 0; }
+
+  /* ================================================
+     PRODUCT DETAIL MODAL
+  ================================================ */
+  .modal-overlay {
+    position: fixed; inset: 0; z-index: 200;
+    background: rgba(15,12,8,.6); backdrop-filter: blur(5px);
+    display: flex; align-items: center; justify-content: center; padding: 20px;
+    opacity: 0; pointer-events: none; transition: opacity .28s ease;
+  }
+  .modal-overlay.open { opacity: 1; pointer-events: all; }
+
+  .modal {
+    background: var(--card); border-radius: 20px;
+    width: 100%; max-width: 820px; max-height: 92vh; overflow-y: auto;
+    display: grid; grid-template-columns: 1fr 1fr;
+    box-shadow: 0 32px 80px rgba(0,0,0,.28);
+    transform: translateY(32px) scale(.97);
+    transition: transform .32s cubic-bezier(.22,1,.36,1);
+    position: relative; direction: rtl;
+  }
+  .modal-overlay.open .modal { transform: translateY(0) scale(1); }
+
+  .modal-x {
+    position: absolute; top: 14px; left: 14px; z-index: 5;
+    width: 34px; height: 34px; border-radius: 50%;
+    background: var(--bg); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.1rem; color: var(--muted); cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+  .modal-x:hover { background: var(--text); color: #fff; }
+
+  /* Image is on the LEFT side (LTR: right; RTL: left → we place it second in DOM) */
+  .modal-img { border-radius: 0 20px 20px 0; overflow: hidden; background: #f0ebe3; }
+  .modal-img img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  .modal-body { padding: 34px 30px; display: flex; flex-direction: column; }
+
+  .modal-badge {
+    display: inline-block; align-self: flex-start;
+    background: #fff4ec; color: var(--accent);
+    font-size: .75rem; font-weight: 700; letter-spacing: .03em;
+    padding: 4px 12px; border-radius: 20px; margin-bottom: 12px;
+    font-family: var(--font-ar);
+  }
+  .modal-title { font-family: var(--font-ar); font-size: 1.6rem; font-weight: 800; line-height: 1.3; margin-bottom: 4px; }
+  .modal-title-en { font-family: var(--font-en); font-size: .9rem; color: var(--muted); margin-bottom: 12px; }
+  .modal-price { font-size: 1.5rem; font-weight: 800; color: var(--accent); margin-bottom: 16px; font-family: var(--font-ar); }
+  .modal-price small { font-size: .85rem; color: var(--muted); font-weight: 400; }
+  .modal-sep { height: 1px; background: var(--border); margin-bottom: 16px; }
+  .modal-longdesc { font-size: .95rem; line-height: 1.85; color: #444; margin-bottom: 20px; flex: 1; }
+
+  .modal-specs { list-style: none; margin-bottom: 24px; }
+  .modal-specs li {
+    display: flex; gap: 10px; font-size: .88rem;
+    padding: 7px 0; border-bottom: 1px solid var(--border);
+  }
+  .modal-specs li:last-child { border-bottom: none; }
+  .modal-specs li strong { color: var(--text); min-width: 90px; flex-shrink: 0; font-family: var(--font-ar); }
+  .modal-specs li span { color: var(--muted); }
+
+  .modal-actions { display: flex; flex-direction: column; gap: 10px; }
+
+  .btn-wa-lg {
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    background: var(--accent2); color: #fff; border: none; border-radius: 10px;
+    padding: 14px 20px; font-size: .98rem; font-family: var(--font-ar); font-weight: 700;
+    cursor: pointer; transition: background .18s, transform .15s; direction: rtl;
+  }
+  .btn-wa-lg:hover { background: #1e5c3f; transform: scale(1.02); }
+  .btn-wa-lg svg { width: 20px; height: 20px; fill: #fff; flex-shrink: 0; }
+
+  .btn-back {
+    display: flex; align-items: center; justify-content: center;
+    background: transparent; color: var(--muted); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 11px 20px;
+    font-size: .9rem; font-family: var(--font-ar); font-weight: 500;
+    cursor: pointer; transition: border-color .18s, color .18s;
+  }
+  .btn-back:hover { border-color: var(--text); color: var(--text); }
+
+  /* Mobile modal */
+  @media (max-width: 640px) {
+    .modal { grid-template-columns: 1fr; }
+    .modal-img { border-radius: 20px 20px 0 0; aspect-ratio: 16/9; }
+    .modal-img img { height: 100%; }
+    .modal-body { padding: 22px 18px; }
+    .modal-title { font-size: 1.25rem; }
+  }
+
+  /* ---- ORDER FORM ---- */
+  .form-section { background: var(--card); border-top: 1px solid var(--border); padding: 60px 24px; }
+  .form-wrap { max-width: 540px; margin: 0 auto; }
+  .form-wrap h2 { font-family: var(--font-ar); font-size: 1.8rem; font-weight: 800; margin-bottom: 8px; }
+  .form-wrap p { color: var(--muted); font-size: .95rem; margin-bottom: 28px; line-height: 1.8; }
+  .form-group { margin-bottom: 18px; }
+  label {
+    display: block; font-size: .85rem; font-weight: 600;
+    color: var(--muted); margin-bottom: 6px; font-family: var(--font-ar);
+  }
+  label span.lbl-en { font-family: var(--font-en); font-size: .75rem; font-weight: 400; margin-right: 6px; color: #bbb; }
+  input, textarea {
+    width: 100%; padding: 12px 14px; border: 1.5px solid var(--border); border-radius: 9px;
+    font-family: var(--font-ar); font-size: .95rem; background: var(--bg); color: var(--text);
+    transition: border-color .18s; outline: none; resize: vertical; direction: rtl;
+  }
+  input:focus, textarea:focus { border-color: var(--accent); }
+  .btn-submit {
+    width: 100%; padding: 14px; background: var(--accent); color: #fff; border: none; border-radius: 9px;
+    font-family: var(--font-ar); font-size: 1rem; font-weight: 700; cursor: pointer;
+    transition: background .18s, transform .15s; display: flex; align-items: center; justify-content: center; gap: 8px; direction: rtl;
+  }
+  .btn-submit:hover { background: #a85e28; transform: scale(1.01); }
+  .btn-submit svg { width: 20px; height: 20px; fill: #fff; }
+
+  /* ---- FOOTER ---- */
+  footer { text-align: center; padding: 28px; font-size: .85rem; color: var(--muted); border-top: 1px solid var(--border); }
+
+  /* ---- TOAST ---- */
+  .toast {
+    position: fixed; bottom: 28px; left: 50%;
+    transform: translateX(-50%) translateY(80px);
+    background: #1a1a1a; color: #fff; padding: 12px 22px; border-radius: 30px;
+    font-size: .9rem; opacity: 0; transition: all .35s ease; pointer-events: none; z-index: 999;
+    font-family: var(--font-ar);
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* English mode — switch to LTR, swap fonts */
+  body.en { direction: ltr; font-family: var(--font-en); }
+  body.en header { direction: ltr; }
+  body.en .tagline { direction: ltr; text-align: right; }
+  body.en .hero h1, body.en .section-title, body.en .form-wrap h2 { font-family: var(--font-en); }
+  body.en .card-name { font-family: var(--font-en); font-weight: 600; }
+  body.en .card-footer { flex-direction: row; }
+  body.en input, body.en textarea { direction: ltr; font-family: var(--font-en); }
+  body.en label { font-family: var(--font-en); }
+  body.en .btn-wa, body.en .btn-wa-lg, body.en .btn-submit, body.en .btn-back,
+  body.en .modal-body, body.en .modal-specs li strong { font-family: var(--font-en); }
+  body.en .modal { direction: ltr; }
+  body.en .modal-img { border-radius: 20px 0 0 20px; }
+  body.en .modal-x { left: auto; right: 14px; }
+  body.en .view-hint { left: auto; right: 8px; }
+  body.en .toast { font-family: var(--font-en); }
+
+  @media (max-width: 500px) {
+    header { padding: 16px 20px; }
+    .hero { padding: 40px 16px 32px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Language bar -->
+<div class="lang-bar">
+  <button class="lang-btn active" onclick="setLang('ar')" id="btn-ar">العربية</button>
+  <button class="lang-btn" onclick="setLang('en')" id="btn-en">English</button>
+</div>
+
+<header>
+  <div class="logo" id="logo-text">متجري</div>
+  <div class="tagline" id="tagline">جودة · توصيل سريع</div>
+</header>
+
+<section class="hero">
+  <h1 id="hero-title">تسوّق أفضل<br>المنتجات أونلاين</h1>
+  <p id="hero-sub">تصفح مجموعتنا واطلب مباشرة عبر واتساب — سريع وسهل وشخصي.</p>
+  <div class="divider"></div>
+</section>
+
+<section class="products-section">
+  <h2 class="section-title" id="products-title">منتجاتنا</h2>
+  <div class="grid" id="products-grid"></div>
+</section>
+
+<section class="form-section">
+  <div class="form-wrap">
+    <h2 id="form-title">أرسل طلبك</h2>
+    <p id="form-sub">أدخل بياناتك وأرسل طلبك مباشرة إلينا عبر واتساب.</p>
+
+    <div class="form-group">
+      <label for="fname">الاسم الكامل <span class="lbl-en">Full Name</span></label>
+      <input type="text" id="fname" placeholder="مثال: أحمد بنعلي" />
+    </div>
+    <div class="form-group">
+      <label for="fphone">رقم الهاتف <span class="lbl-en">Phone Number</span></label>
+      <input type="tel" id="fphone" placeholder="+212 6XX XXX XXX" />
+    </div>
+    <div class="form-group">
+      <label for="faddress">عنوان التوصيل <span class="lbl-en">Delivery Address</span></label>
+      <textarea id="faddress" rows="3" placeholder="المدينة، الحي، الشارع..."></textarea>
+    </div>
+    <div class="form-group">
+      <label for="fnote">ملاحظة (اختياري) <span class="lbl-en">Note (optional)</span></label>
+      <textarea id="fnote" rows="2" placeholder="أي طلبات خاصة؟"></textarea>
+    </div>
+
+    <button class="btn-submit" onclick="sendFormOrder()">
+      <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      <span id="form-btn-text">إرسال الطلب عبر واتساب</span>
+    </button>
+  </div>
+</section>
+
+<footer id="footer-text">&copy; 2025 متجري · جميع الحقوق محفوظة</footer>
+<div class="toast" id="toast"></div>
+
+<!-- ===== PRODUCT DETAIL MODAL ===== -->
+<div class="modal-overlay" id="modal-overlay" onclick="handleOverlayClick(event)">
+  <div class="modal" id="modal">
+    <button class="modal-x" onclick="closeModal()">✕</button>
+    <div class="modal-body">
+      <span class="modal-badge" id="modal-badge"></span>
+      <div class="modal-title" id="modal-title"></div>
+      <div class="modal-title-en" id="modal-title-en"></div>
+      <div class="modal-price" id="modal-price"></div>
+      <div class="modal-sep"></div>
+      <div class="modal-longdesc" id="modal-longdesc"></div>
+      <ul class="modal-specs" id="modal-specs"></ul>
+      <div class="modal-actions">
+        <button class="btn-wa-lg" id="modal-wa-btn">
+          <svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          <span id="modal-wa-text">اطلب عبر واتساب</span>
+        </button>
+        <button class="btn-back" onclick="closeModal()" id="modal-back-btn">← العودة للمتجر</button>
+      </div>
+    </div>
+    <div class="modal-img">
+      <img id="modal-img" src="" alt="" />
+    </div>
+  </div>
+</div>
+
+<script>
+/* ================================================
+   ✏️  CONFIG
+================================================ */
+const CONFIG = {
+  whatsappNumber: "212600000000",   // ← رقم واتساب (بدون +)
+  storeName_ar:   "متجري",
+  storeName_en:   "MyStore",
+  currency:       "درهم",
+  currency_en:    "MAD",
+};
+
+/* ================================================
+   ✏️  PRODUCTS — أضف/عدّل/احذف المنتجات هنا
+   كل منتج يحتوي على: اسم عربي، اسم إنجليزي،
+   سعر، وصف قصير، وصف كامل، مواصفات، صورة
+================================================ */
+const PRODUCTS = [
+  {
+    name_ar:     "سماعات لاسلكية",
+    name_en:     "Wireless Headphones",
+    price:       349,
+    desc_ar:     "جودة صوت ممتازة مع بطارية تدوم 30 ساعة.",
+    desc_en:     "Premium sound quality with 30-hour battery life.",
+    longDesc_ar: "استمتع بالموسيقى كما يُفترض أن تُسمع. توفر هذه السماعات جهيرًا غنيًا وأصواتًا عالية صافية عبر مشغلات 40 مم. تقنية إلغاء الضوضاء النشطة تعزلك عن العالم الخارجي.",
+    longDesc_en: "Experience music the way it was meant to be heard. Rich, deep bass and crystal-clear highs through 40mm drivers. Active noise cancellation blocks out the world.",
+    image:       "https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=800&q=85",
+    badge_ar:    "🎧 صوتيات",
+    badge_en:    "🎧 Audio",
+    details: [
+      { label_ar: "البطارية",   label_en: "Battery",   value: "30 ساعة / 30 hrs" },
+      { label_ar: "بلوتوث",    label_en: "Bluetooth",  value: "5.2 — 10 م" },
+      { label_ar: "الوزن",     label_en: "Weight",     value: "250 غ" },
+      { label_ar: "الألوان",   label_en: "Colors",     value: "أسود، أبيض، أحمر" },
+    ],
+  },
+  {
+    name_ar:     "محفظة جلدية",
+    name_en:     "Leather Wallet",
+    price:       129,
+    desc_ar:     "محفظة جلد طبيعي نحيفة، تتسع لـ8 بطاقات + نقود.",
+    desc_en:     "Slim genuine leather wallet, fits 8 cards + cash.",
+    longDesc_ar: "مصنوعة يدويًا من الجلد الطبيعي الكامل الذي يكتسب مع الوقت مظهرًا جميلًا. حجم فائق النحافة يريح جيبك مع إتاحة المساحة لكل ما تحتاجه.",
+    longDesc_en: "Handcrafted from full-grain leather that develops a beautiful patina over time. Ultra-slim profile keeps your pocket comfortable.",
+    image:       "https://images.unsplash.com/photo-1627123424574-724758594e93?w=800&q=85",
+    badge_ar:    "👜 إكسسوارات",
+    badge_en:    "👜 Accessories",
+    details: [
+      { label_ar: "المادة",   label_en: "Material",  value: "جلد طبيعي كامل" },
+      { label_ar: "البطاقات", label_en: "Cards",     value: "حتى 8 بطاقات" },
+      { label_ar: "الحجم",    label_en: "Size",      value: "11 × 9 سم" },
+      { label_ar: "الألوان",  label_en: "Colors",    value: "بني، أسود، كستنائي" },
+    ],
+  },
+  {
+    name_ar:     "ساعة ذكية",
+    name_en:     "Smart Watch",
+    price:       599,
+    desc_ar:     "تتبع اللياقة والإشعارات والنوم. مقاومة للماء.",
+    desc_en:     "Track fitness, notifications, and sleep. Water-resistant.",
+    longDesc_ar: "رفيقك الصحي على معصمك. تتبع معدل ضربات القلب والخطوات وجودة النوم وأكسجين الدم باستمرار. استقبل المكالمات والرسائل دون إخراج هاتفك.",
+    longDesc_en: "Your health companion on your wrist. Tracks heart rate, steps, sleep quality, and SpO2 continuously. Receive calls and messages without your phone.",
+    image:       "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=800&q=85",
+    badge_ar:    "⌚ أجهزة ذكية",
+    badge_en:    "⌚ Wearables",
+    details: [
+      { label_ar: "البطارية", label_en: "Battery",  value: "7 أيام" },
+      { label_ar: "الماء",    label_en: "Water",     value: "5 ATM (50م)" },
+      { label_ar: "الشاشة",   label_en: "Display",   value: "1.4\" AMOLED" },
+      { label_ar: "المستشعرات", label_en: "Sensors", value: "HR, SpO2, GPS" },
+    ],
+  },
+  {
+    name_ar:     "نظارة شمسية",
+    name_en:     "Sunglasses",
+    price:       199,
+    desc_ar:     "عدسات مستقطبة UV400 في إطار أفياتور كلاسيكي.",
+    desc_en:     "UV400 polarised lenses in a classic aviator frame.",
+    longDesc_ar: "أسلوب أفياتور خالد مع تقنية بصرية حديثة. العدسات المستقطبة تقضي على الوهج من الماء والطرق والثلج. إطار معدني خفيف يرتاح للارتداء طوال اليوم.",
+    longDesc_en: "Timeless aviator style with modern optical technology. Polarised lenses eliminate glare from water, roads, and snow. Lightweight metal frame for all-day comfort.",
+    image:       "https://images.unsplash.com/photo-1572635196237-14b3f281503f?w=800&q=85",
+    badge_ar:    "😎 نظارات",
+    badge_en:    "😎 Eyewear",
+    details: [
+      { label_ar: "العدسات",   label_en: "Lenses",   value: "مستقطبة UV400" },
+      { label_ar: "الإطار",    label_en: "Frame",    value: "ستانلس ستيل" },
+      { label_ar: "المقاس",    label_en: "Fit",      value: "للجنسين" },
+      { label_ar: "المحتويات", label_en: "Includes", value: "علبة صلبة + قماشة" },
+    ],
+  },
+  {
+    name_ar:     "حقيبة ظهر قماشية",
+    name_en:     "Canvas Backpack",
+    price:       279,
+    desc_ar:     "حجرة لابتوب 15\"، سعة 30 لتر، قماش مقاوم للماء.",
+    desc_en:     "15\" laptop compartment, 30L capacity, water-resistant.",
+    longDesc_ar: "مصممة للمسافرين اليوميين وعشاق المغامرات. القماش الشمعي يصد المطر الخفيف بسهولة. حجرة لابتوب مبطنة وجيوب تنظيمية وجيب خفي خلفي لأمانك.",
+    longDesc_en: "Built for commuters and weekend adventurers. Waxed canvas sheds light rain effortlessly. Padded laptop sleeve, organiser pockets, and a hidden back zipper.",
+    image:       "https://images.unsplash.com/photo-1553062407-98eeb64c6a62?w=800&q=85",
+    badge_ar:    "🎒 حقائب",
+    badge_en:    "🎒 Bags",
+    details: [
+      { label_ar: "السعة",    label_en: "Capacity",  value: "30 لتر" },
+      { label_ar: "اللابتوب", label_en: "Laptop",    value: "حتى 15\"" },
+      { label_ar: "المادة",   label_en: "Material",  value: "قماش مشمع" },
+      { label_ar: "الألوان",  label_en: "Colors",    value: "زيتي، كحلي، أسود" },
+    ],
+  },
+];
+/* ================ END EDITABLE CONFIG ================ */
+
+/* ---- Language state ---- */
+let LANG = "ar";
+
+const UI = {
+  ar: {
+    logo:        "متجري",
+    tagline:     "جودة · توصيل سريع",
+    heroTitle:   "تسوّق أفضل<br>المنتجات أونلاين",
+    heroSub:     "تصفح مجموعتنا واطلب مباشرة عبر واتساب — سريع وسهل وشخصي.",
+    productsTitle: "منتجاتنا",
+    formTitle:   "أرسل طلبك",
+    formSub:     "أدخل بياناتك وأرسل طلبك مباشرة إلينا عبر واتساب.",
+    formBtn:     "إرسال الطلب عبر واتساب",
+    viewHint:    "👁 عرض التفاصيل",
+    orderBtn:    "اطلب",
+    waModalBtn:  "اطلب عبر واتساب",
+    backBtn:     "← العودة للمتجر",
+    footer:      "© 2025 متجري · جميع الحقوق محفوظة",
+    toastErr:    "⚠️ يرجى ملء الاسم والهاتف والعنوان.",
+    fnPlaceholder: "مثال: أحمد بنعلي",
+    fphPlaceholder: "+212 6XX XXX XXX",
+    faPlaceholder:  "المدينة، الحي، الشارع...",
+    fnPlaceholder2: "أي طلبات خاصة؟",
+    waMsg: (p) =>
+      `🛍️ *طلب جديد — ${CONFIG.storeName_ar}*\n\n` +
+      `📦 *المنتج:* ${p.name_ar}\n` +
+      `💰 *السعر:* ${p.price.toLocaleString()} ${CONFIG.currency}\n\n` +
+      `يرجى تأكيد التوفر وتفاصيل التوصيل. شكرًا!`,
+    waFormMsg: (n,ph,addr,note) =>
+      `🛍️ *طلب جديد — ${CONFIG.storeName_ar}*\n\n` +
+      `👤 *الاسم:* ${n}\n📞 *الهاتف:* ${ph}\n📍 *العنوان:* ${addr}\n` +
+      (note ? `📝 *ملاحظة:* ${note}\n` : "") +
+      `\nيرجى تأكيد طلبي. شكرًا!`,
+  },
+  en: {
+    logo:        "MyStore",
+    tagline:     "Quality · Fast Delivery",
+    heroTitle:   "Shop the Best<br>Products Online",
+    heroSub:     "Browse our collection and order directly via WhatsApp — fast, easy, and personal.",
+    productsTitle: "Our Products",
+    formTitle:   "Send Your Order",
+    formSub:     "Fill in your details and send your order directly to us on WhatsApp.",
+    formBtn:     "Send Order on WhatsApp",
+    viewHint:    "👁 View details",
+    orderBtn:    "Order",
+    waModalBtn:  "Order on WhatsApp",
+    backBtn:     "← Back to store",
+    footer:      "© 2025 MyStore · All rights reserved",
+    toastErr:    "⚠️ Please fill in name, phone, and address.",
+    fnPlaceholder: "e.g. Ahmed Benali",
+    fphPlaceholder: "+212 6XX XXX XXX",
+    faPlaceholder:  "City, neighbourhood, street...",
+    fnPlaceholder2: "Any special requests?",
+    waMsg: (p) =>
+      `🛍️ *New Order — ${CONFIG.storeName_en}*\n\n` +
+      `📦 *Product:* ${p.name_en}\n` +
+      `💰 *Price:* ${p.price.toLocaleString()} ${CONFIG.currency_en}\n\n` +
+      `Please confirm availability and delivery details. Thank you!`,
+    waFormMsg: (n,ph,addr,note) =>
+      `🛍️ *New Order — ${CONFIG.storeName_en}*\n\n` +
+      `👤 *Name:* ${n}\n📞 *Phone:* ${ph}\n📍 *Address:* ${addr}\n` +
+      (note ? `📝 *Note:* ${note}\n` : "") +
+      `\nPlease confirm my order. Thank you!`,
+  },
+};
+
+function setLang(lang) {
+  LANG = lang;
+  document.getElementById("btn-ar").classList.toggle("active", lang === "ar");
+  document.getElementById("btn-en").classList.toggle("active", lang === "en");
+  document.body.classList.toggle("en", lang === "en");
+  document.documentElement.lang = lang;
+  document.documentElement.dir  = lang === "ar" ? "rtl" : "ltr";
+
+  const t = UI[lang];
+  document.getElementById("logo-text").textContent      = t.logo;
+  document.getElementById("tagline").textContent        = t.tagline;
+  document.getElementById("hero-title").innerHTML       = t.heroTitle;
+  document.getElementById("hero-sub").textContent       = t.heroSub;
+  document.getElementById("products-title").textContent = t.productsTitle;
+  document.getElementById("form-title").textContent     = t.formTitle;
+  document.getElementById("form-btn-text").textContent  = t.formBtn;
+  document.getElementById("form-sub").textContent       = t.formSub;
+  document.getElementById("footer-text").innerHTML      = t.footer;
+  document.getElementById("modal-wa-text").textContent  = t.waModalBtn;
+  document.getElementById("modal-back-btn").textContent = t.backBtn;
+  document.getElementById("fname").placeholder   = t.fnPlaceholder;
+  document.getElementById("fphone").placeholder  = t.fphPlaceholder;
+  document.getElementById("faddress").placeholder = t.faPlaceholder;
+  document.getElementById("fnote").placeholder   = t.fnPlaceholder2;
+
+  renderProducts();
+}
+
+/* ---- WhatsApp SVG ---- */
+const WA_SVG = `<svg viewBox="0 0 24 24" style="width:16px;height:16px;fill:#fff;flex-shrink:0"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+
+/* ---- Render cards ---- */
+function renderProducts() {
+  const t = UI[LANG];
+  document.getElementById("products-grid").innerHTML = PRODUCTS.map((p, i) => `
+    <div class="card" onclick="openModal(${i})">
+      <div class="card-img-wrap">
+        <img src="${p.image}" alt="${LANG === 'ar' ? p.name_ar : p.name_en}" loading="lazy" />
+        <span class="view-hint">${t.viewHint}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${LANG === 'ar' ? p.name_ar : p.name_en}</div>
+        <div class="card-name-en">${LANG === 'ar' ? p.name_en : ''}</div>
+        <div class="card-desc">${LANG === 'ar' ? p.desc_ar : p.desc_en}</div>
+        <div class="card-footer">
+          <div class="price">${p.price.toLocaleString()} <small>${LANG === 'ar' ? CONFIG.currency : CONFIG.currency_en}</small></div>
+          <button class="btn-wa" onclick="event.stopPropagation(); orderProduct(${i})">
+            ${WA_SVG} ${t.orderBtn}
+          </button>
+        </div>
+      </div>
+    </div>
+  `).join("");
+}
+
+/* ---- Modal ---- */
+function openModal(i) {
+  const p = PRODUCTS[i];
+  const t = UI[LANG];
+  document.getElementById("modal-img").src = p.image;
+  document.getElementById("modal-badge").textContent   = LANG === 'ar' ? p.badge_ar : p.badge_en;
+  document.getElementById("modal-title").textContent   = LANG === 'ar' ? p.name_ar  : p.name_en;
+  document.getElementById("modal-title-en").textContent = LANG === 'ar' ? p.name_en : '';
+  document.getElementById("modal-price").innerHTML =
+    `${p.price.toLocaleString()} <small>${LANG === 'ar' ? CONFIG.currency : CONFIG.currency_en}</small>`;
+  document.getElementById("modal-longdesc").textContent = LANG === 'ar' ? p.longDesc_ar : p.longDesc_en;
+  document.getElementById("modal-specs").innerHTML = (p.details || []).map(d =>
+    `<li><strong>${LANG === 'ar' ? d.label_ar : d.label_en}</strong><span>${d.value}</span></li>`
+  ).join("");
+  document.getElementById("modal-wa-btn").onclick = () => { closeModal(); orderProduct(i); };
+  document.getElementById("modal-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+}
+
+function closeModal() {
+  document.getElementById("modal-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+function handleOverlayClick(e) {
+  if (e.target === document.getElementById("modal-overlay")) closeModal();
+}
+document.addEventListener("keydown", e => { if (e.key === "Escape") closeModal(); });
+
+/* ---- Order ---- */
+function orderProduct(i) {
+  openWhatsApp(UI[LANG].waMsg(PRODUCTS[i]));
+}
+
+function sendFormOrder() {
+  const name    = document.getElementById("fname").value.trim();
+  const phone   = document.getElementById("fphone").value.trim();
+  const address = document.getElementById("faddress").value.trim();
+  const note    = document.getElementById("fnote").value.trim();
+  if (!name || !phone || !address) { showToast(UI[LANG].toastErr); return; }
+  openWhatsApp(UI[LANG].waFormMsg(name, phone, address, note));
+}
+
+function openWhatsApp(msg) {
+  window.open(`https://wa.me/${CONFIG.whatsappNumber}?text=${encodeURIComponent(msg)}`, "_blank");
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3200);
+}
+
+/* Init */
+renderProducts();
+</script>
+</body>
+</html>
